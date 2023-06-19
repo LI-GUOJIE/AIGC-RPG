@@ -22,13 +22,13 @@ def update_world(story_id):
     prompt = utils.add_default_latest_dialog(prompt, story_data)
     prompt = utils.add_default_summary(prompt, story_data)
     prompt = utils.add_summary_property(prompt)
-    new_world_state = chatbot.ask(story_id, "system", prompt)
+    new_world_state = chatbot.ask(story_data, "system", prompt)
     
     # 再次开始多轮对话
     prompt = temp_data['dialog_engine_update_template']
     story_data.summary = utils.get_summary(new_world_state)
     prompt = utils.add_default_summary(prompt, story_data)
-    new_dialog = chatbot.ask(story_id, "system", prompt)
+    new_dialog = chatbot.ask(story_data, "system", prompt)
 
     # TODO:
     # 目前这里很混乱，改成class之后再清理
@@ -36,7 +36,6 @@ def update_world(story_id):
     # 目前这种方式，参数是否更新很难看出来
 
     # 追加到缓存（这里如果不重新获取story_data，ask中的结果将被覆盖）
-    story_data = redis_cli.get_story(story_id)
     current_date_and_time = str(datetime.now())
     story_data.summary = utils.get_summary(new_world_state)
     story_data.latest_dialog = []

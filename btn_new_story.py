@@ -31,21 +31,19 @@ def new_story(player_template_name):
         return story_id, "故事ID异常", "故事ID异常"
     
     story_data = storydata.StoryData(player_template_name)
-    redis_cli.set_story(story_id, story_data)
 
     # 初始化世界状态
     current_date_and_time = str(datetime.now())
     worldRecordInit = "------------" + current_date_and_time + "-----------\n"
     prompt = temp_data['world_engine_init_template']
     prompt = utils.add_summary_property(prompt)
-    worldRecordInit += chatbot.ask(story_id, "system", prompt)
+    worldRecordInit += chatbot.ask(story_data, "system", prompt)
 
     # 初始对话
     dialogRecordInit = "------------" + current_date_and_time + "-----------\n"
-    dialogRecordInit += chatbot.ask(story_id, "system", worldRecordInit+'\n'+temp_data['dialog_engine_init_template'])
+    dialogRecordInit += chatbot.ask(story_data, "system", worldRecordInit+'\n'+temp_data['dialog_engine_init_template'])
 
     # 更新记录
-    story_data = redis_cli.get_story(story_id)
     story_data.summary = utils.get_summary(worldRecordInit)
     story_data.world_record_txt = worldRecordInit
     story_data.dialog_record_txt = dialogRecordInit

@@ -21,7 +21,7 @@ class Chatbot:
 
     def ask(
         self,
-        story_id,
+        story_data,
         role,
         prompt,
     ):
@@ -30,7 +30,6 @@ class Chatbot:
         """
 
         # Add conversation（会话历史仅用于备份）
-        story_data = redis_cli.get_story(story_id)
         story_data.conversation.append({"role": role,"content": prompt}) 
 
         # Get response
@@ -60,7 +59,6 @@ class Chatbot:
 
                 # 保存结果到对话
                 story_data.conversation.append({"role": rsp_role,"content": rsp_content})
-                redis_cli.set_story(story_id, story_data)
                 return rsp_content
         except:
             return "AI模型提供方发生报错"
