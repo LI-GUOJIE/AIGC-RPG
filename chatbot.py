@@ -31,7 +31,7 @@ class Chatbot:
 
         # Add conversation（会话历史仅用于备份）
         story_data = redis_cli.get_story(story_id)
-        story_data['conversation'].append({"role": role,"content": prompt}) 
+        story_data.conversation.append({"role": role,"content": prompt}) 
 
         # Get response
         rsp = self.session.post(
@@ -59,7 +59,7 @@ class Chatbot:
                 rsp_content = rsp['content']
 
                 # 保存结果到对话
-                story_data['conversation'].append({"role": rsp_role,"content": rsp_content})
+                story_data.conversation.append({"role": rsp_role,"content": rsp_content})
                 redis_cli.set_story(story_id, story_data)
                 return rsp_content
         except:

@@ -1,6 +1,7 @@
 import redis
 import os
 import json
+import storydata
 
 def get_redis_cli():
     return redis.Redis(host=os.environ.get("REDIS_HOST"), 
@@ -32,9 +33,14 @@ def get_story(story_id):
     # 判断是否为空
     if json_story is None:
         return None
-
-    # 解析json
-    return json.loads(json_story)
+    
+    print("get_story:")
+    data = json.loads(json_story)
+    print(data)
+    result = storydata.StoryData()
+    result.__dict__ = data
+    print(result)
+    return result
 
 # 简单粗暴地使用json
 def set_story(story_id, story_data):

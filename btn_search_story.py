@@ -10,6 +10,6 @@ def search_story(story_id):
         return "", "故事ID不存在：" + story_id, "故事ID不存在：" + story_id
 
     # 返回内容
-    return story_data['template_id'], \
-        story_data['world_record_txt'], \
-        story_data['dialog_record_txt']
+    return story_data.template_id, \
+        story_data.world_record_txt, \
+        story_data.dialog_record_txt

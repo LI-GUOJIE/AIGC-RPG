@@ -1,6 +1,7 @@
 from chatbot import chatbot
 from datetime import datetime
 import redis_cli
+import storydata
 import utils
 
 # 加载世界引擎初始模板，并初始化会话
@@ -29,15 +30,7 @@ def new_story(player_template_name):
     if story_data is not None:
         return story_id, "故事ID异常", "故事ID异常"
     
-    story_data = {
-        "template_id": player_template_name,  # 模板ID
-        'world_record_txt': '',               # 世界记录
-        'dialog_record_txt': '',              # 对话记录
-        'conversation': [],                   # 和AI模型的对话 list[dict]
-        'latest_dialog': [],                  # 最后一轮对话
-        'summary': '',                        # 世界状态总结
-        'user_input': '',                     # 用户输入
-    }
+    story_data = storydata.StoryData(player_template_name)
     redis_cli.set_story(story_id, story_data)
 
     # 初始化世界状态
@@ -53,9 +46,9 @@ def new_story(player_template_name):
 
     # 更新记录
     story_data = redis_cli.get_story(story_id)
-    story_data['summary'] = utils.get_summary(worldRecordInit)
-    story_data['world_record_txt'] = worldRecordInit
-    story_data['dialog_record_txt'] = dialogRecordInit
+    story_data.summary = utils.get_summary(worldRecordInit)
+    story_data.world_record_txt = worldRecordInit
+    story_data.dialog_record_txt = dialogRecordInit
     redis_cli.set_story(story_id, story_data)
     
     print("create story_id: " + str(story_id))
