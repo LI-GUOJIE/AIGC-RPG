@@ -2,6 +2,7 @@ import redis_cli
 import requests
 import os
 import json
+import utils
 
 # 参考revertGPT构造Chatbot
 class Chatbot:
@@ -28,12 +29,10 @@ class Chatbot:
         Ask a question
         """
 
-        # Add conversation
+        # Add conversation（会话历史仅用于备份）
         story_data = redis_cli.get_story(story_id)
-        story_data['conversation'].append({"role": role,"content": prompt})
-        print("debug conversation:")
-        print(story_data['conversation'])
-        
+        story_data['conversation'].append({"role": role,"content": prompt}) 
+
         # Get response
         rsp = self.session.post(
             self.url,
@@ -41,7 +40,7 @@ class Chatbot:
             verify = False,
             json={
                 "auth": self.api_key,
-                "conversation": story_data['conversation'],
+                "conversation": utils.replace_key_words(prompt, story_data),
             },
         )
         print("response:")
