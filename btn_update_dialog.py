@@ -17,11 +17,13 @@ def update_dialog(story_id, user_input):
 
     # 插入用户输入内容
     story_data['conversation'].append({"role": 'user',"content": user_input})
+    redis_cli.set_story(story_id, story_data)
 
     # 命令式调用引擎
     response = chatbot.ask(story_id, "system", temp_data['dialog_engine_update_template'])
 
-    # 将本回合新增对话追加到缓存
+    # 将本回合新增对话追加到缓存（这里如果不重新获取story_data，ask中的结果将被覆盖）
+    story_data = redis_cli.get_story(story_id)
     new_content = user_input + "\n" + response
     story_data['dialog_record_txt'] += "\n" + new_content
     redis_cli.set_story(story_id, story_data)

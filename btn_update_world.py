@@ -22,7 +22,8 @@ def update_world(story_id):
     # 再次开始多轮对话
     new_dialog = chatbot.ask(story_id, "system", temp_data['dialog_engine_update_template'])
 
-    # 追加到缓存
+    # 追加到缓存（这里如果不重新获取story_data，ask中的结果将被覆盖）
+    story_data = redis_cli.get_story(story_id)
     current_date_and_time = str(datetime.now())
     story_data['world_record_txt'] += "\n\n------------" + current_date_and_time + "-----------\n" + new_world_state
     story_data['dialog_record_txt'] += "\n\n------------" + current_date_and_time + "-----------\n" + new_dialog
