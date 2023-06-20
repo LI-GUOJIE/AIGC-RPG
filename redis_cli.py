@@ -1,7 +1,7 @@
 import redis
 import os
 import json
-import storydata
+from storydata import StoryData
 
 def get_redis_cli():
     return redis.Redis(host=os.environ.get("REDIS_HOST"), 
@@ -22,7 +22,7 @@ def get_new_story_id(player_template_name):
     return player_template_name + "-" + str(max_num)
 
 # 简单粗暴地使用json
-def get_story(story_id):
+def get_story(story_id) -> StoryData:
 
     # 连接redis
     r = get_redis_cli()
@@ -37,19 +37,18 @@ def get_story(story_id):
     print("get_story:")
     data = json.loads(json_story)
     print(data)
-    result = storydata.StoryData()
+    result = StoryData("")
     result.__dict__ = data
-    print(result)
     return result
 
 # 简单粗暴地使用json
-def set_story(story_id, story_data):
+def set_story(story_id, story_data:StoryData):
 
     # 连接redis
     r = get_redis_cli()
 
     # 序列化
-    json_story = json.dumps(story_data)
+    json_story = json.dumps(story_data.__dict__)
 
     # 存储到redis
     r.set("story_id:" + story_id, json_story, ex=86400*30)

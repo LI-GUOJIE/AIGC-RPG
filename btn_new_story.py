@@ -1,7 +1,7 @@
 from chatbot import chatbot
+from storydata import StoryData
 from datetime import datetime
 import redis_cli
-import storydata
 import utils
 
 # 加载世界引擎初始模板，并初始化会话
@@ -30,21 +30,22 @@ def new_story(player_template_name):
     if story_data is not None:
         return story_id, "故事ID异常", "故事ID异常"
     
-    story_data = storydata.StoryData(player_template_name)
+    story_data = StoryData(player_template_name)
 
     # 初始化世界状态
     current_date_and_time = str(datetime.now())
     worldRecordInit = "------------" + current_date_and_time + "-----------\n"
     prompt = temp_data['world_engine_init_template']
     prompt = utils.add_summary_property(prompt)
-    worldRecordInit += chatbot.ask(story_data, "system", prompt)
+    init_content = chatbot.ask(story_data, "system", prompt)
+    story_data.summary = utils.get_summary(init_content)
+    worldRecordInit += utils.del_summary(init_content)
 
     # 初始对话
     dialogRecordInit = "------------" + current_date_and_time + "-----------\n"
-    dialogRecordInit += chatbot.ask(story_data, "system", worldRecordInit+'\n'+temp_data['dialog_engine_init_template'])
+    dialogRecordInit += chatbot.ask(story_data, "system", worldRecordInit+'\n\n'+temp_data['dialog_engine_init_template'])
 
     # 更新记录
-    story_data.summary = utils.get_summary(worldRecordInit)
     story_data.world_record_txt = worldRecordInit
     story_data.dialog_record_txt = dialogRecordInit
     redis_cli.set_story(story_id, story_data)
