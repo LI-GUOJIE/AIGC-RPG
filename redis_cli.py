@@ -2,6 +2,7 @@ import redis
 import os
 import json
 from storydata import StoryData
+from template import Template
 
 def get_redis_cli():
     return redis.Redis(host=os.environ.get("REDIS_HOST"), 
@@ -34,9 +35,7 @@ def get_story(story_id) -> StoryData:
     if json_story is None:
         return None
     
-    print("get_story:")
     data = json.loads(json_story)
-    print(data)
     result = StoryData("")
     result.__dict__ = data
     return result
@@ -53,7 +52,7 @@ def set_story(story_id, story_data:StoryData):
     # 存储到redis
     r.set("story_id:" + story_id, json_story, ex=86400*30)
 
-def get_template(temp_name):
+def get_template(temp_name) -> Template:
 
     # 连接redis
     r = redis.Redis(host=os.environ.get("REDIS_HOST"), 
@@ -70,15 +69,18 @@ def get_template(temp_name):
         return None
 
     # 解析json
-    return json.loads(json_temp)
+    data = json.loads(json_temp)
+    result = Template("", "", "", "")
+    result.__dict__ = data
+    return result
 
-def set_template(temp_name, temp_data):
+def set_template(temp_name, temp_data:Template):
 
     # 连接redis
     r = get_redis_cli()
 
     # 序列化
-    json_temp = json.dumps(temp_data)
+    json_temp = json.dumps(temp_data.__dict__)
 
     # 存储到redis
     r.set("temp_id:" + temp_name, json_temp, ex=86400*30)

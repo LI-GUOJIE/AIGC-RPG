@@ -11,7 +11,7 @@ def search_template(manager_template_name):
             "模板不存在：" + manager_template_name, \
             "模板不存在：" + manager_template_name
     
-    return temp_data['world_engine_init_template'], \
-        temp_data['dialog_engine_init_template'] , \
-        temp_data['world_engine_update_template'] , \
-        temp_data['dialog_engine_update_template']
+    return temp_data.world_engine_init_template, \
+        temp_data.dialog_engine_init_template, \
+        temp_data.world_engine_update_template, \
+        temp_data.dialog_engine_update_template
