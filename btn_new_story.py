@@ -29,11 +29,14 @@ def new_story(player_template_name):
         return story_id, "故事ID异常", "故事ID异常"
     
     # 初始化世界状态
-    story_data = StoryData(player_template_name, temp_data)
-    story_data.new_story()
+    story_data = StoryData(story_id, player_template_name, temp_data)
+    errmsg, ok = story_data.new_story()
+    if ok == False:
+        return story_id, errmsg, errmsg
 
     # 存储
     redis_cli.set_story(story_id, story_data)
     
     # 渲染页面
     return story_id, story_data.world_record_txt, story_data.dialog_record_txt
+

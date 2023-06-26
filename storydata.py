@@ -1,14 +1,16 @@
 from chatbot import chatbot
-from template import Template
+from templatedata import TemplateData
 import const
 
 class StoryData:
     
     def __init__(
         self,
-        player_template_name,
-        temp_data:Template,
+        story_id:str,
+        player_template_name:str,
+        temp_data:TemplateData,
     ) -> None:
+        self.story_id          = story_id              # 故事ID
         self.template_id       = player_template_name  # 模板ID
         self.temp_data         = temp_data             # 模板数据
         self.world_record_txt  = ''                    # 世界状态长篇记录，只增不减
@@ -18,13 +20,15 @@ class StoryData:
         self.summary           = ''                    # 世界状态摘要，每次世界状态发生变动后更新
         
 
-    # 检查token是否达到上限()
-    def is_token_touch_limit(self) -> bool:
-        return len(self.world_record_txt) > const.default_token_limit
-    
-
     # 更新摘要
     def update_summary(self, world_news):
+
+        # 检查token是否达到上限
+        num = 0
+        for conv in self.conversation:
+            num += len(conv['content'])
+        if num < const.default_token_limit:
+            return "Need not summary", True
 
         # 组织报文。如果有summary，说明不是第一次调用，直接用summary
         if len(self.summary) > 0:
@@ -35,13 +39,16 @@ class StoryData:
         prompt += const.default_summary_template
 
         # 发送请求
-        response = chatbot.query([{
+        response, ok = chatbot.query(self.story_id, [{
             'role': 'system',
             'content': prompt
         }])
+        if ok == False:
+            return response, False
 
         # 更新摘要
         self.summary = response
+        return "Success", True
 
 
     # 替换模板中的关键词
@@ -61,7 +68,7 @@ class StoryData:
         
         # 如果接近token上限，改用摘要
         conversations = self.conversation
-        if self.is_token_touch_limit():
+        if len(self.summary) > 0:
 
             # 组织摘要 【世界】+【对话（如果存在）】+【模板】
             prompt = "【世界】\n" + self.summary + '\n\n'
@@ -76,17 +83,15 @@ class StoryData:
                     }]
             
         # 发送请求
-        print("query_with_summary conversations:")
-        print(conversations)
-        response = chatbot.query(conversations)
+        response, ok = chatbot.query(self.story_id, conversations)
+        if ok == False:
+            return response, False
 
         # 记录 ouput from ChatGPT
-        print("query_with_summary response:")
-        print(response)
         self.conversation.append({'role': 'assistant',
                                 'content': response})
     
-        return response
+        return response, True
         
     # 调用世界初始引擎
     def new_story(self):
@@ -97,11 +102,15 @@ class StoryData:
                               'content': self.replace_key_words(self.temp_data.world_engine_init_template)}]
 
         # 生成世界初始状态
-        self.world_record_txt = chatbot.query(self.conversation)
+        response, ok = chatbot.query(self.story_id, self.conversation)
+        if ok == False:
+            return response, False
+        self.world_record_txt = response
 
         # 更新摘要
-        if self.is_token_touch_limit():
-            self.update_summary(self.world_record_txt)
+        errmsg, ok = self.update_summary(self.world_record_txt)
+        if ok == False:
+            return errmsg, False
 
         # 记录 ouput from ChatGPT
         self.conversation.append({'role': 'assistant',
@@ -113,7 +122,10 @@ class StoryData:
                                   'content': self.replace_key_words(self.temp_data.dialog_engine_init_template)})
 
         # 生成初始的NPC向玩家打招呼的内容
-        self.dialog_record_txt = chatbot.query(self.conversation)
+        response, ok = chatbot.query(self.story_id, self.conversation)
+        if ok == False:
+            return response, False
+        self.dialog_record_txt = response
 
         # 记录 ouput from ChatGPT
         self.conversation.append({'role': 'assistant',
@@ -121,6 +133,7 @@ class StoryData:
 
         # 新的一轮对话开始
         self.latest_dialog = self.dialog_record_txt
+        return "Success", True
 
 
     # 更新对话
@@ -135,11 +148,14 @@ class StoryData:
         self.latest_dialog += '\n' + user_input
 
         # 调用对话更新引擎
-        response = self.query_with_summary(self.temp_data.dialog_engine_update_template)
+        response, ok = self.query_with_summary(self.temp_data.dialog_engine_update_template)
+        if ok == False:
+            return response, False
         
         # 将NPC发言插入到对话记录、新一轮对话中
         self.dialog_record_txt += '\n' + response
         self.latest_dialog += '\n' + response
+        return "Success", True
 
 
     # 更新世界
@@ -147,25 +163,31 @@ class StoryData:
 
         # ======================================= 更新世界状态 =======================================
         # 调用世界更新引擎
-        response = self.query_with_summary(self.temp_data.world_engine_update_template)
+        response, ok = self.query_with_summary(self.temp_data.world_engine_update_template)
+        if ok == False:
+            return response, False
 
         # 将新的剧情插入到世界记录
         self.world_record_txt += '\n\n' + response
 
         # 更新摘要
-        if self.is_token_touch_limit():
-            self.update_summary(response)
+        errmsg, ok = self.update_summary(response)
+        if ok == False:
+            return errmsg, False
 
         # ======================================= 重启多轮对话 =======================================
         # 清除上一轮对话
         self.latest_dialog = ""
 
         # 调用对话更新引擎
-        response = self.query_with_summary(self.temp_data.dialog_engine_update_template)
+        response, ok = self.query_with_summary(self.temp_data.dialog_engine_update_template)
+        if ok == False:
+            return response, False
 
         # 将NPC发言插入到对话记录中
         self.dialog_record_txt += '\n\n' + response
 
         # 新的一轮对话开始
         self.latest_dialog = response
+        return "Success", True
 

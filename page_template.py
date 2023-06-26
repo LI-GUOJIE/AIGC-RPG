@@ -24,7 +24,7 @@ def load_page_template():
 		with gr.Row():
 			manager_template_name = gr.Textbox(label="模板ID（支持中文）", show_label=True, max_lines=1, lines=1)
 			btn_create_template = gr.Button("生成模板（若模板ID已存在则报错）", variant="primary")
-			btn_force_create_template = gr.Button("强制生成模板（直接覆盖，无视模板ID是否已存在）", variant="primary")
+			btn_force_create_template = gr.Button("强制更新模板", variant="primary")
 			btn_search_template = gr.Button("查找模板", variant="primary")
 
 	# 生成模板
@@ -34,7 +34,7 @@ def load_page_template():
 		outputs=[world_engine_init_template, dialog_engine_init_template, world_engine_update_template, dialog_engine_update_template],
 	)
 
-	# 强制生成模板
+	# 强制更新模板
 	btn_force_create_template.click(
 		force_create_template,
 		inputs=[manager_template_name, world_engine_init_template, dialog_engine_init_template, world_engine_update_template, dialog_engine_update_template],

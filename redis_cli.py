@@ -2,7 +2,7 @@ import redis
 import os
 import json
 from storydata import StoryData
-from template import Template
+from templatedata import TemplateData
 
 def get_redis_cli():
     return redis.Redis(host=os.environ.get("REDIS_HOST"), 
@@ -22,6 +22,7 @@ def get_new_story_id(player_template_name):
     # 获取该模板下唯一的故事ID
     return player_template_name + "-" + str(max_num)
 
+
 # 简单粗暴地使用json
 def get_story(story_id) -> StoryData:
 
@@ -35,10 +36,17 @@ def get_story(story_id) -> StoryData:
     if json_story is None:
         return None
     
+    # 解析json
     data = json.loads(json_story)
-    result = StoryData("")
+    result = StoryData("", "", None)
     result.__dict__ = data
+    
+    # 处理嵌套类（story中的template）
+    temp_data = TemplateData("", "", "", "")
+    temp_data.__dict__ = result.temp_data
+    result.temp_data = temp_data
     return result
+
 
 # 简单粗暴地使用json
 def set_story(story_id, story_data:StoryData):
@@ -46,13 +54,18 @@ def set_story(story_id, story_data:StoryData):
     # 连接redis
     r = get_redis_cli()
 
+    # 处理嵌套类（story中的template）
+    old_data = story_data.temp_data
+    story_data.temp_data = story_data.temp_data.__dict__
+
     # 序列化
     json_story = json.dumps(story_data.__dict__)
+    story_data.temp_data = old_data
 
     # 存储到redis
     r.set("story_id:" + story_id, json_story, ex=86400*30)
 
-def get_template(temp_name) -> Template:
+def get_template(temp_name) -> TemplateData:
 
     # 连接redis
     r = redis.Redis(host=os.environ.get("REDIS_HOST"), 
@@ -70,11 +83,11 @@ def get_template(temp_name) -> Template:
 
     # 解析json
     data = json.loads(json_temp)
-    result = Template("", "", "", "")
+    result = TemplateData("", "", "", "")
     result.__dict__ = data
     return result
 
-def set_template(temp_name, temp_data:Template):
+def set_template(temp_name, temp_data:TemplateData):
 
     # 连接redis
     r = get_redis_cli()

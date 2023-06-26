@@ -10,11 +10,12 @@ def update_world(story_id):
         return "故事不存在：" + story_id, "故事不存在：" + story_id
     
     # 更新世界状态
-    story_data.update_world()
+    errmsg, ok = story_data.update_world()
+    if ok == False:
+        return errmsg, errmsg
 
     # 存盘
     redis_cli.set_story(story_id, story_data)
 
     # 返回缓存中的内容
     return story_data.world_record_txt, story_data.dialog_record_txt
-

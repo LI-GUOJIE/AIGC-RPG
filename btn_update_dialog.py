@@ -10,7 +10,9 @@ def update_dialog(story_id, user_input):
         return "故事不存在：" + story_id
     
     # 调用对话引擎
-    story_data.update_dialog(user_input)
+    errmsg, ok = story_data.update_dialog(user_input)
+    if ok == False:
+        return errmsg
 
     # 存盘
     redis_cli.set_story(story_id, story_data)

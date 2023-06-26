@@ -1,5 +1,5 @@
 import redis_cli
-from template import Template
+from templatedata import TemplateData
 
 # 加载世界引擎更新模板
 def force_create_template(manager_template_name,
@@ -37,7 +37,7 @@ def force_create_template(manager_template_name,
         old_dialog_engine_init_template    = temp_data.dialog_engine_init_template
         old_world_engine_update_template   = temp_data.world_engine_update_template 
         old_dialog_engine_update_template  = temp_data.dialog_engine_update_template
-    temp_data = Template(
+    temp_data = TemplateData(
         world_engine_init_template,
         dialog_engine_init_template,
         world_engine_update_template,
@@ -45,7 +45,7 @@ def force_create_template(manager_template_name,
     )
     redis_cli.set_template(manager_template_name, temp_data)
 
-    return "强制生成模板：" + manager_template_name + "\n被覆盖的内容：" + old_world_engine_init_template, \
-        "强制生成模板：" + manager_template_name + "\n被覆盖的内容：" + old_dialog_engine_init_template, \
-        "强制生成模板：" + manager_template_name + "\n被覆盖的内容：" + old_world_engine_update_template, \
-        "强制生成模板：" + manager_template_name + "\n被覆盖的内容：" + old_dialog_engine_update_template
+    return "强制更新模板：" + manager_template_name + "\n被覆盖的内容：" + old_world_engine_init_template, \
+        "强制更新模板：" + manager_template_name + "\n被覆盖的内容：" + old_dialog_engine_init_template, \
+        "强制更新模板：" + manager_template_name + "\n被覆盖的内容：" + old_world_engine_update_template, \
+        "强制更新模板：" + manager_template_name + "\n被覆盖的内容：" + old_dialog_engine_update_template
