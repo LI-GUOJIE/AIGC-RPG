@@ -38,7 +38,6 @@ def force_create_template(manager_template_name,
         old_world_engine_update_template   = temp_data.world_engine_update_template 
         old_dialog_engine_update_template  = temp_data.dialog_engine_update_template
     temp_data = TemplateData(
-        manager_template_name,
         world_engine_init_template,
         dialog_engine_init_template,
         world_engine_update_template,

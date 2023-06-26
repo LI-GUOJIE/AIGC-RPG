@@ -32,7 +32,6 @@ def create_template(manager_template_name,
             "存在同名模板，如果想要覆盖，请点击[强制更新模板]按钮：" + manager_template_name, \
             "存在同名模板，如果想要覆盖，请点击[强制更新模板]按钮：" + manager_template_name
     temp_data = TemplateData(
-        manager_template_name,
         world_engine_init_template,
         dialog_engine_init_template,
         world_engine_update_template,
