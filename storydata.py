@@ -111,6 +111,8 @@ class StoryData:
         errmsg, ok = self.update_summary(self.world_record_txt)
         if ok == False:
             return errmsg, False
+        if errmsg == "Success":
+            self.world_record_txt += "\n=========== 由于字数接近上限，将启用【摘要】 ===========\n"
 
         # 记录 ouput from ChatGPT
         self.conversation.append({'role': 'assistant',
@@ -174,6 +176,8 @@ class StoryData:
         errmsg, ok = self.update_summary(response)
         if ok == False:
             return errmsg, False
+        if errmsg == "Success":
+            self.world_record_txt += "\n=========== 由于字数接近上限，将启用【摘要】 ===========\n"
 
         # ======================================= 重启多轮对话 =======================================
         # 清除上一轮对话
