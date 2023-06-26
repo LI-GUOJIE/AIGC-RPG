@@ -1,0 +1,1 @@
+nohup python -u dev_app.py > tmp.log 2>&1 &

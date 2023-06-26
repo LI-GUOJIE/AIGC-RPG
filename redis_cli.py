@@ -42,7 +42,7 @@ def get_story(story_id) -> StoryData:
     result.__dict__ = data
     
     # 处理嵌套类（story中的template）
-    temp_data = TemplateData("", "", "", "")
+    temp_data = TemplateData("", "", "", "", "")
     temp_data.__dict__ = result.temp_data
     result.temp_data = temp_data
     return result
@@ -83,7 +83,7 @@ def get_template(temp_name) -> TemplateData:
 
     # 解析json
     data = json.loads(json_temp)
-    result = TemplateData("", "", "", "")
+    result = TemplateData("", "", "", "", "")
     result.__dict__ = data
     return result
 
