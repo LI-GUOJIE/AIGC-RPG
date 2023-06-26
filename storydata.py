@@ -108,10 +108,11 @@ class StoryData:
         self.world_record_txt = response
 
         # 更新摘要
+        old_summary_len = len(self.summary)
         errmsg, ok = self.update_summary(self.world_record_txt)
         if ok == False:
             return errmsg, False
-        if errmsg == "Success":
+        if old_summary_len == 0 and len(self.summary) > 0:
             self.world_record_txt += "\n=========== 由于字数接近上限，将启用【摘要】 ===========\n"
 
         # 记录 ouput from ChatGPT
@@ -173,10 +174,11 @@ class StoryData:
         self.world_record_txt += '\n\n' + response
 
         # 更新摘要
+        old_summary_len = len(self.summary)
         errmsg, ok = self.update_summary(response)
         if ok == False:
             return errmsg, False
-        if errmsg == "Success":
+        if old_summary_len == 0 and len(self.summary) > 0:
             self.world_record_txt += "\n=========== 由于字数接近上限，将启用【摘要】 ===========\n"
 
         # ======================================= 重启多轮对话 =======================================

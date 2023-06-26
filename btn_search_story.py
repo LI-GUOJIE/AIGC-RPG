@@ -1,4 +1,3 @@
-import gradio as gr
 import redis_cli
 
 # 获取上回故事内容

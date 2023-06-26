@@ -10,7 +10,11 @@ def load_page_player():
 		with gr.Row():
 			with gr.Box():
 				player_template_name = gr.Textbox(label="模板ID（管理员预设的)", show_label=True, max_lines=1, lines=1)
-				btn_new_story = gr.Button("创建新故事", variant="primary")
+				with gr.Row():
+					btn_new_story = gr.Button("创建新故事", variant="primary")
+					gr.Examples(["修仙弟子", "随机盒子", "绿茶僵尸"],
+								inputs=[player_template_name],
+								label="推荐模板")
 				
 			with gr.Box():
 				story_id = gr.Textbox(label="故事ID（[创建新故事时]自动生成的）", show_label=True, max_lines=1, lines=1)
