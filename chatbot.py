@@ -2,6 +2,7 @@ import requests
 import os
 import json
 import const
+import copy
 
 # 参考revertGPT构造Chatbot
 class Chatbot:
@@ -46,9 +47,10 @@ class Chatbot:
 
                 # insert query log
                 output_query_logs.append({
-                        "Request to GPT": conversations,
+                        "Request to GPT": copy.deepcopy(conversations),
                         "Response from GPT": rsp,
                     })
+
                 return rsp_content, True
             
         # 超时

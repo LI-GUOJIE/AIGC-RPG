@@ -3,7 +3,8 @@ from storydata import StoryData
 import redis_cli
 
 # 加载世界引擎初始模板，并初始化会话
-def new_story(player_template_name):
+def new_story(player_template_name, not_ignore_system):
+    ignore_system = not not_ignore_system
 
     # 检查模板名是否为空
     if len(player_template_name) < 1:
@@ -24,7 +25,7 @@ def new_story(player_template_name):
     
     # 初始化世界状态
     story_data = StoryData(story_id, player_template_name, temp_data)
-    errmsg, ok = story_data.new_story()
+    errmsg, ok = story_data.new_story(ignore_system)
     if ok == False:
         return story_id, errmsg, errmsg
 

@@ -22,11 +22,11 @@ class StoryData:
         
 
     # 更新摘要
-    def update_summary(self, world_news):
+    def update_summary(self, world_news, ignore_system):
 
         # 检查token是否达到上限
         num = 0
-        for conv in self.get_conversations():
+        for conv in self.get_conversations(ignore_system):
             num += len(conv['content'])
         if num < const.default_token_limit:
             return "Need not summary", True
@@ -60,7 +60,7 @@ class StoryData:
 
     
     # 利用摘要发起查询
-    def query_with_summary(self, temp) -> str:
+    def query_with_summary(self, temp, ignore_system) -> str:
 
         # 记录 input to ChatGPT
         temp = self.replace_key_words(temp)
@@ -69,7 +69,7 @@ class StoryData:
         
         # 如果接近token上限，改用摘要
         if len(self.summary) == 0:
-            conversations = self.get_conversations()
+            conversations = self.get_conversations(ignore_system)
         else:
             # 组织摘要 【世界】+【对话（如果存在）】+【模板】
             prompt = "【世界】\n" + self.summary + '\n\n'
@@ -95,7 +95,7 @@ class StoryData:
         return response, True
         
     # 调用世界初始引擎
-    def new_story(self):
+    def new_story(self, ignore_system):
 
         # ======================================= 生成初始世界状态 =======================================
         # 记录 input to ChatGPT
@@ -103,14 +103,14 @@ class StoryData:
                               'content': self.replace_key_words(self.temp_data.world_engine_init_template)}]
 
         # 生成世界初始状态
-        response, ok = chatbot.query(self.story_id, self.get_conversations(), self.query_logs)
+        response, ok = chatbot.query(self.story_id, self.get_conversations(ignore_system), self.query_logs)
         if ok == False:
             return response, False
         self.world_record_txt = response
 
         # 更新摘要
         old_summary_len = len(self.summary)
-        errmsg, ok = self.update_summary(self.world_record_txt)
+        errmsg, ok = self.update_summary(self.world_record_txt, ignore_system)
         if ok == False:
             return errmsg, False
         if old_summary_len == 0 and len(self.summary) > 0:
@@ -126,7 +126,7 @@ class StoryData:
                                   'content': self.replace_key_words(self.temp_data.dialog_engine_init_template)})
 
         # 生成初始的NPC向玩家打招呼的内容
-        response, ok = chatbot.query(self.story_id, self.get_conversations(), self.query_logs)
+        response, ok = chatbot.query(self.story_id, self.get_conversations(ignore_system), self.query_logs)
         if ok == False:
             return response, False
         self.dialog_record_txt = response
@@ -141,7 +141,7 @@ class StoryData:
 
 
     # 更新对话
-    def update_dialog(self, user_input):
+    def update_dialog(self, user_input, ignore_system):
 
         # 记录 input to ChatGPT
         self.conversation.append({'role': 'user',
@@ -152,7 +152,7 @@ class StoryData:
         self.latest_dialog += '\n' + user_input
 
         # 调用对话更新引擎
-        response, ok = self.query_with_summary(self.temp_data.dialog_engine_update_template)
+        response, ok = self.query_with_summary(self.temp_data.dialog_engine_update_template, ignore_system)
         if ok == False:
             return response, False
         
@@ -163,11 +163,11 @@ class StoryData:
 
 
     # 更新世界
-    def update_world(self):
+    def update_world(self, ignore_system):
 
         # ======================================= 更新世界状态 =======================================
         # 调用世界更新引擎
-        response, ok = self.query_with_summary(self.temp_data.world_engine_update_template)
+        response, ok = self.query_with_summary(self.temp_data.world_engine_update_template, ignore_system)
         if ok == False:
             return response, False
 
@@ -176,7 +176,7 @@ class StoryData:
 
         # 更新摘要
         old_summary_len = len(self.summary)
-        errmsg, ok = self.update_summary(response)
+        errmsg, ok = self.update_summary(response, ignore_system)
         if ok == False:
             return errmsg, False
         if old_summary_len == 0 and len(self.summary) > 0:
@@ -187,7 +187,7 @@ class StoryData:
         self.latest_dialog = ""
 
         # 调用对话更新引擎
-        response, ok = self.query_with_summary(self.temp_data.dialog_engine_update_template)
+        response, ok = self.query_with_summary(self.temp_data.dialog_engine_update_template, ignore_system)
         if ok == False:
             return response, False
 
@@ -200,10 +200,9 @@ class StoryData:
 
 
     # 获取conversations
-    def get_conversations(self):
+    def get_conversations(self, ignore_system):
         
         # 无需过滤，直接输出
-        ignore_system = True
         if ignore_system == False:
             return self.conversation
         

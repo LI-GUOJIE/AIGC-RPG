@@ -1,7 +1,8 @@
 import redis_cli
 
 # 发送用户输入内容
-def update_dialog(story_id, user_input):
+def update_dialog(story_id, user_input, not_ignore_system):
+    ignore_system = not not_ignore_system
     
     # 检查故事ID
     story_data = redis_cli.get_story(story_id)
@@ -9,7 +10,7 @@ def update_dialog(story_id, user_input):
         return "故事不存在：" + story_id
     
     # 调用对话引擎
-    errmsg, ok = story_data.update_dialog(user_input)
+    errmsg, ok = story_data.update_dialog(user_input, ignore_system)
     if ok == False:
         return errmsg
 

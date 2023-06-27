@@ -8,7 +8,7 @@ def load_page_developer():
 			story_id = gr.Textbox(label="故事ID（[创建新故事时]自动生成的）", show_label=True, max_lines=1, lines=1)
 			btn_update_developer_info = gr.Button("更新", variant="primary")
 			
-		# developer_txt = gr.Textbox(label="", show_label=False, max_lines=16, lines=16)
+		# developer_txt = gr.Textbox(label="故事的完整后台信息", show_label=False, max_lines=50, lines=50)
 		developer_txt = gr.Code(language="json", show_label=False)
 
 	# 根据故事线查找对应的内容

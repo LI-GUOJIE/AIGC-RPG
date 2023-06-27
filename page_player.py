@@ -10,12 +10,15 @@ def load_page_player():
 		with gr.Row():
 			with gr.Box():
 				player_template_name = gr.Textbox(label="模板ID（管理员预设的)", show_label=True, max_lines=1, lines=1)
-				with gr.Row():
-					btn_new_story = gr.Button("创建新故事", variant="primary")
-					gr.Examples(["修仙弟子", "随机盒子", "绿茶僵尸"],
-								inputs=[player_template_name],
-								label="推荐模板")
+				btn_new_story = gr.Button("创建新故事", variant="primary")
 				
+			with gr.Box():
+				not_ignore_system = gr.Checkbox(label="旧版conversation", info="发给GPT的历史会话中包含完整的模板的使用记录，会消耗更多tokens")
+				with gr.Box():
+					gr.Examples(["修仙弟子", "随机盒子", "绿茶僵尸"],
+									inputs=[player_template_name],
+									label="推荐模板")
+
 			with gr.Box():
 				story_id = gr.Textbox(label="故事ID（[创建新故事时]自动生成的）", show_label=True, max_lines=1, lines=1)
 				btn_search_story = gr.Button("续写故事", variant="primary")
@@ -36,7 +39,7 @@ def load_page_player():
 	# 创新新故事
 	btn_new_story.click(
 		new_story,
-		inputs=[player_template_name],
+		inputs=[player_template_name, not_ignore_system],
 		outputs=[story_id, world_record_txt, dialog_record_txt],
 	)              
 
@@ -50,13 +53,13 @@ def load_page_player():
 	# 更新世界状态
 	btn_update_world.click(
 		update_world,
-		inputs=[story_id],
+		inputs=[story_id, not_ignore_system],
 		outputs=[world_record_txt, dialog_record_txt],
 	)         
 
 	# 发送用户输入内容
 	btn_update_dialog.click(
 		update_dialog,
-		inputs=[story_id, dialog_input],
+		inputs=[story_id, dialog_input, not_ignore_system],
 		outputs=[dialog_record_txt],
 	)
