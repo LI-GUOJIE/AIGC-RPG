@@ -40,7 +40,11 @@ def get_story(story_id) -> StoryData:
     data = json.loads(json_story)
     result = StoryData("", "", None)
     result.__dict__ = data
+
+    # 后增加的属性，需要兼容之前已存储的数据
     result.story_id = story_id
+    if 'query_logs' not in data:
+        result.query_logs = []
     
     # 处理嵌套类（story中的template）
     temp_data = TemplateData("", "", "", "")

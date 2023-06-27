@@ -25,11 +25,11 @@ def load_page_player():
 						
 		with gr.Row():
 			with gr.Box():
-				world_record_txt = gr.Textbox(label="世界状态记录", show_label=True, max_lines=25, lines=25)
+				world_record_txt = gr.Textbox(label="世界状态记录", show_label=True, max_lines=28, lines=28)
 				btn_update_world = gr.Button("更新到世界记录", variant="primary")
 				
 			with gr.Column():
-				dialog_record_txt = gr.Textbox(label="对话记录", show_label=True, max_lines=20, lines=20)
+				dialog_record_txt = gr.Textbox(label="对话记录", show_label=True, max_lines=23, lines=23)
 
 				with gr.Box():
 					gr.Markdown("### 用户输入\n")

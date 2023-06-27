@@ -11,15 +11,15 @@ def load_page_template():
 				gr.Markdown("### 初始设置（在创建新故事时生效）\n")
 
 				with gr.Box():
-					world_engine_init_template = gr.Textbox(label="世界初始引擎", show_label=True, max_lines=12, lines=12)
-					dialog_engine_init_template = gr.Textbox(label="对话初始引擎", show_label=True, max_lines=12, lines=12)
+					world_engine_init_template = gr.Textbox(label="世界初始引擎", show_label=True, max_lines=14, lines=14)
+					dialog_engine_init_template = gr.Textbox(label="对话初始引擎", show_label=True, max_lines=14, lines=14)
 				
 			with gr.Column():
 				gr.Markdown("### 多轮设置（在多轮对话过程中生效）\n")
 
 				with gr.Box():
-					world_engine_update_template = gr.Textbox(label="世界更新引擎", show_label=True, max_lines=12, lines=12)
-					dialog_engine_update_template = gr.Textbox(label="对话更新引擎", show_label=True, max_lines=12, lines=12)
+					world_engine_update_template = gr.Textbox(label="世界更新引擎", show_label=True, max_lines=14, lines=14)
+					dialog_engine_update_template = gr.Textbox(label="对话更新引擎", show_label=True, max_lines=14, lines=14)
 
 		with gr.Row():
 			manager_template_name = gr.Textbox(label="模板ID（支持中文）", show_label=True, max_lines=1, lines=1)
