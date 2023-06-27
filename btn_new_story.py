@@ -7,18 +7,12 @@ def new_story(player_template_name):
 
     # 检查模板名是否为空
     if len(player_template_name) < 1:
-        return "", "模板ID为空：" + player_template_name, "模板ID为空：" + player_template_name, \
-            "", "模板ID为空：" + player_template_name, "模板ID为空：" + player_template_name, \
-            "", "模板ID为空：" + player_template_name, "模板ID为空：" + player_template_name, \
-            "", "模板ID为空：" + player_template_name, "模板ID为空：" + player_template_name
+        return player_template_name, "模板ID为空", "模板ID为空"
 
     # 获取模板
     temp_data = redis_cli.get_template(player_template_name)
     if temp_data is None:
-        return "", "模板不存在：" + player_template_name, "模板不存在：" + player_template_name, \
-            "", "模板不存在：" + player_template_name, "模板不存在：" + player_template_name, \
-            "", "模板不存在：" + player_template_name, "模板不存在：" + player_template_name, \
-            "", "模板不存在：" + player_template_name, "模板不存在：" + player_template_name
+        return player_template_name, "模板不存在", "模板不存在"
 
     # 获取新的故事ID
     story_id = redis_cli.get_new_story_id(player_template_name)

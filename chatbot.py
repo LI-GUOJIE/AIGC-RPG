@@ -21,11 +21,13 @@ class Chatbot:
     # 最简单的查询
     def query(
         self,
-        story_id,
-        conversations,
+        story_id:str,
+        conversations:list,
+        query_logs:list,
     ):
-        print(f"chatbot start, story_id:{story_id}, conversations:")
-        print(conversations)
+        # insert log
+        query_logs.append(f"Request to GPT, conversations:{str(conversations)}")
+
         try:
             # 带超时的访问
             rsp = self.session.post(
@@ -39,22 +41,29 @@ class Chatbot:
                 timeout=const.default_timeout,
             )
 
+            # 解析返回值
             for line in rsp.iter_lines():
                 processed_line = json.loads(line)
                 rsp = processed_line['data']['choices'][0]['message']
                 rsp_content = rsp['content']
-                print(f"chatbot finish, story_id:{story_id}, response:")
-                print(rsp_content)
+
+                # insert log
+                query_logs.append(f"Response from GPT, content:{rsp_content}")
                 return rsp_content, True
             
+        # 超时
         except requests.Timeout:
             print(f"chatbot finish, story_id:{story_id}, response:")
             print("AI接口访问失败，响应超时")
             return "AI接口访问失败，响应超时", False
+        
+        # 链接异常
         except requests.ConnectionError:
             print(f"chatbot finish, story_id:{story_id}, response:")
             print("AI接口访问失败，连接错误")
             return "AI接口访问失败，连接错误", False
+        
+        # 其他异常
         except:
             print(f"chatbot finish, story_id:{story_id}, response:")
             print("AI接口访问失败，其他错误")

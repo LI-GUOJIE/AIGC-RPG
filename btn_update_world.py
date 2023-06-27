@@ -1,4 +1,3 @@
-from chatbot import chatbot
 import redis_cli
 
 # 更新世界状态

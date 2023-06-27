@@ -18,6 +18,7 @@ class StoryData:
         self.conversation      = []                    # 会话长篇记录，只增不减
         self.latest_dialog     = ''                    # 最新一轮对话内容
         self.summary           = ''                    # 世界状态摘要，每次世界状态发生变动后更新
+        self.query_logs        = []                    # 和GPT的交互日志
         
 
     # 更新摘要
@@ -42,7 +43,7 @@ class StoryData:
         response, ok = chatbot.query(self.story_id, [{
             'role': 'system',
             'content': prompt
-        }])
+        }], self.query_logs)
         if ok == False:
             return response, False
 
@@ -83,7 +84,7 @@ class StoryData:
                     }]
             
         # 发送请求
-        response, ok = chatbot.query(self.story_id, conversations)
+        response, ok = chatbot.query(self.story_id, conversations, self.query_logs)
         if ok == False:
             return response, False
 
@@ -102,7 +103,7 @@ class StoryData:
                               'content': self.replace_key_words(self.temp_data.world_engine_init_template)}]
 
         # 生成世界初始状态
-        response, ok = chatbot.query(self.story_id, self.conversation)
+        response, ok = chatbot.query(self.story_id, self.conversation, self.query_logs)
         if ok == False:
             return response, False
         self.world_record_txt = response
@@ -125,7 +126,7 @@ class StoryData:
                                   'content': self.replace_key_words(self.temp_data.dialog_engine_init_template)})
 
         # 生成初始的NPC向玩家打招呼的内容
-        response, ok = chatbot.query(self.story_id, self.conversation)
+        response, ok = chatbot.query(self.story_id, self.conversation, self.query_logs)
         if ok == False:
             return response, False
         self.dialog_record_txt = response

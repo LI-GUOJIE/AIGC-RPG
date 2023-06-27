@@ -1,4 +1,3 @@
-from chatbot import chatbot
 import redis_cli
 
 # 发送用户输入内容
