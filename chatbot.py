@@ -23,11 +23,8 @@ class Chatbot:
         self,
         story_id:str,
         conversations:list,
-        query_logs:list,
+        output_query_logs:list,
     ):
-        # insert log
-        query_logs.append(f"Request to GPT, conversations:{str(conversations)}")
-
         try:
             # 带超时的访问
             rsp = self.session.post(
@@ -47,8 +44,11 @@ class Chatbot:
                 rsp = processed_line['data']['choices'][0]['message']
                 rsp_content = rsp['content']
 
-                # insert log
-                query_logs.append(f"Response from GPT, content:{rsp_content}")
+                # insert query log
+                output_query_logs.append({
+                        "Request to GPT": conversations,
+                        "Response from GPT": rsp,
+                    })
                 return rsp_content, True
             
         # 超时

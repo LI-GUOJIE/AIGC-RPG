@@ -26,7 +26,7 @@ class StoryData:
 
         # 检查token是否达到上限
         num = 0
-        for conv in self.conversation:
+        for conv in self.get_conversations():
             num += len(conv['content'])
         if num < const.default_token_limit:
             return "Need not summary", True
@@ -68,9 +68,9 @@ class StoryData:
                                   'content': temp})
         
         # 如果接近token上限，改用摘要
-        conversations = self.conversation
-        if len(self.summary) > 0:
-
+        if len(self.summary) == 0:
+            conversations = self.get_conversations()
+        else:
             # 组织摘要 【世界】+【对话（如果存在）】+【模板】
             prompt = "【世界】\n" + self.summary + '\n\n'
             if len(self.latest_dialog) > 0:
@@ -103,7 +103,7 @@ class StoryData:
                               'content': self.replace_key_words(self.temp_data.world_engine_init_template)}]
 
         # 生成世界初始状态
-        response, ok = chatbot.query(self.story_id, self.conversation, self.query_logs)
+        response, ok = chatbot.query(self.story_id, self.get_conversations(), self.query_logs)
         if ok == False:
             return response, False
         self.world_record_txt = response
@@ -126,7 +126,7 @@ class StoryData:
                                   'content': self.replace_key_words(self.temp_data.dialog_engine_init_template)})
 
         # 生成初始的NPC向玩家打招呼的内容
-        response, ok = chatbot.query(self.story_id, self.conversation, self.query_logs)
+        response, ok = chatbot.query(self.story_id, self.get_conversations(), self.query_logs)
         if ok == False:
             return response, False
         self.dialog_record_txt = response
@@ -198,3 +198,22 @@ class StoryData:
         self.latest_dialog = response
         return "Success", True
 
+
+    # 获取conversations
+    def get_conversations(self):
+        
+        # 无需过滤，直接输出
+        ignore_system = True
+        if ignore_system == False:
+            return self.conversation
+        
+        # 过滤系统会话，仅保留最后一条system
+        conversations = []
+        last_system_conv = ""
+        for conv in self.conversation:
+            if conv['role'] != 'system':
+                conversations.append(conv)
+            else:
+                last_system_conv = conv
+        conversations.append(last_system_conv)
+        return conversations
