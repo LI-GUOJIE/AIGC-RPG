@@ -1,7 +1,7 @@
 import redis_cli
 
 # 更新世界状态
-def update_world(story_id, not_ignore_system):
+def update_world(story_id, not_ignore_system, is_davinci):
     ignore_system = not not_ignore_system
 
     # 检查故事ID
@@ -10,7 +10,7 @@ def update_world(story_id, not_ignore_system):
         return "故事不存在：" + story_id, "故事不存在：" + story_id
     
     # 更新世界状态
-    errmsg, ok = story_data.update_world(ignore_system)
+    errmsg, ok = story_data.update_world(ignore_system, is_davinci)
     if ok == False:
         return errmsg, errmsg
 

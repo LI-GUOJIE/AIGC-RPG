@@ -39,7 +39,7 @@ def load_page_player():
 	# 创新新故事
 	btn_new_story.click(
 		new_story,
-		inputs=[player_template_name, not_ignore_system],
+		inputs=[player_template_name, not_ignore_system, is_davinci],
 		outputs=[story_id, world_record_txt, dialog_record_txt],
 	)              
 
@@ -53,13 +53,13 @@ def load_page_player():
 	# 更新世界状态
 	btn_update_world.click(
 		update_world,
-		inputs=[story_id, not_ignore_system],
+		inputs=[story_id, not_ignore_system, is_davinci],
 		outputs=[world_record_txt, dialog_record_txt],
 	)         
 
 	# 发送用户输入内容
 	btn_update_dialog.click(
 		update_dialog,
-		inputs=[story_id, dialog_input, not_ignore_system],
+		inputs=[story_id, dialog_input, not_ignore_system, is_davinci],
 		outputs=[dialog_record_txt],
 	)

@@ -13,10 +13,8 @@ class Chatbot:
     def __init__(
         self,
         api_key: str,
-        url: str,
     ) -> None:
         self.api_key: str = api_key
-        self.url: str = url
         self.session = requests.Session()
         
     # 最简单的查询
@@ -24,11 +22,11 @@ class Chatbot:
         self,
         story_id:str,
         conversations:list,
+        is_davinci:bool,
         output_query_logs:list,
     ):
         try:
             # 使用davinci模型
-            is_davinci = True
             if is_davinci:
 
                 # 转换语句
@@ -38,7 +36,7 @@ class Chatbot:
 
                 # 带超时的访问
                 rsp = self.session.post(
-                    self.url,
+                    os.environ.get("API_DAVINCI_URL"),
                     headers={"Content-Type": "application/json"},
                     verify = False,
                     json={
@@ -63,7 +61,7 @@ class Chatbot:
 
                 # 带超时的访问
                 rsp = self.session.post(
-                    self.url,
+                    os.environ.get("API_TURBO_URL"),
                     headers={"Content-Type": "application/json"},
                     verify = False,
                     json={
@@ -104,7 +102,7 @@ class Chatbot:
             print(f"chatbot finish, story_id:{story_id}, response:")
             print("AI接口访问失败，其他错误, errInfo:")
             print(errInfo)
-            return "AI接口访问失败，其他错误", False
+            return "AI接口访问失败，具体错误原因需要咨询AI提供方", False
 
 # 初始化全局变量
-chatbot = Chatbot(api_key=os.environ.get("API_KEY"), url=os.environ.get("API_URL"))
+chatbot = Chatbot(api_key=os.environ.get("API_KEY"))
