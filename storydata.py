@@ -27,7 +27,7 @@ class StoryData:
         # 检查token是否达到上限
         num = 0
         for conv in self.get_conversations(ignore_system):
-            num += len(conv['content'])
+            num += len(conv['content'].encode("UTF8"))
         if num < const.default_token_limit:
             return "Need not summary", True
 
