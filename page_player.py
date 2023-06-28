@@ -11,13 +11,13 @@ def load_page_player():
 			with gr.Box():
 				player_template_name = gr.Textbox(label="模板ID（管理员预设的)", show_label=True, max_lines=1, lines=1)
 				btn_new_story = gr.Button("创建新故事", variant="primary")
-				
-			with gr.Box():
-				not_ignore_system = gr.Checkbox(label="旧版conversation", info="发给GPT的历史会话中包含完整的模板的使用记录，会消耗更多tokens")
-				with gr.Box():
-					gr.Examples(["修仙弟子", "随机盒子", "绿茶僵尸"],
-									inputs=[player_template_name],
-									label="推荐模板")
+
+			with gr.Column():
+				not_ignore_system = gr.Checkbox(label="旧版conversation（携带包括模板指令在内的完整会话）")
+				is_davinci = gr.Checkbox(label="启用text-davinci-003（默认使用turbo3.5）")
+				gr.Examples(["修仙弟子", "随机盒子", "绿茶僵尸"],
+								inputs=[player_template_name],
+								label="推荐模板")
 
 			with gr.Box():
 				story_id = gr.Textbox(label="故事ID（[创建新故事时]自动生成的）", show_label=True, max_lines=1, lines=1)
