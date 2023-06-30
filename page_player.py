@@ -12,12 +12,14 @@ def load_page_player():
 				player_template_name = gr.Textbox(label="模板ID（管理员预设的)", show_label=True, max_lines=1, lines=1)
 				btn_new_story = gr.Button("创建新故事", variant="primary")
 
-			with gr.Column():
-				not_ignore_system = gr.Checkbox(label="旧版conversation（携带包括模板指令在内的完整会话）")
-				is_davinci = gr.Checkbox(label="启用text-davinci-003（默认使用turbo3.5）")
-				gr.Examples(["修仙弟子", "随机盒子", "绿茶僵尸"],
+			with gr.Box():
+				gr.Examples(["随机盒子", "随机盒子2.0", "修仙弟子", "绿茶僵尸", "倚天屠龙记", "绿茶僵尸二十二"],
 								inputs=[player_template_name],
-								label="推荐模板")
+								label="常用模板")
+			with gr.Column():
+				not_ignore_system = gr.Checkbox(label="旧版conversation（会话中携带历史模板指令）")
+				is_davinci = gr.Checkbox(label="启用text-davinci-003（默认使用turbo3.5）")
+				is_summary = gr.Checkbox(label="启用summary（字数超限时可以尝试该选项）")
 
 			with gr.Box():
 				story_id = gr.Textbox(label="故事ID（[创建新故事时]自动生成的）", show_label=True, max_lines=1, lines=1)
@@ -39,7 +41,7 @@ def load_page_player():
 	# 创新新故事
 	btn_new_story.click(
 		new_story,
-		inputs=[player_template_name, not_ignore_system, is_davinci],
+		inputs=[player_template_name, not_ignore_system, is_davinci, is_summary],
 		outputs=[story_id, world_record_txt, dialog_record_txt],
 	)              
 
@@ -53,13 +55,13 @@ def load_page_player():
 	# 更新世界状态
 	btn_update_world.click(
 		update_world,
-		inputs=[story_id, not_ignore_system, is_davinci],
+		inputs=[story_id, not_ignore_system, is_davinci, is_summary],
 		outputs=[world_record_txt, dialog_record_txt],
 	)         
 
 	# 发送用户输入内容
 	btn_update_dialog.click(
 		update_dialog,
-		inputs=[story_id, dialog_input, not_ignore_system, is_davinci],
+		inputs=[story_id, dialog_input, not_ignore_system, is_davinci, is_summary],
 		outputs=[dialog_record_txt],
 	)

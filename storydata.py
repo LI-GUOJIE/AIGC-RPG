@@ -21,22 +21,15 @@ class StoryData:
         self.query_logs        = []                    # 和GPT的交互日志
         
 
-    # 更新摘要
-    def update_summary(self, world_news, ignore_system, is_davinci):
-
-        # 检查token是否达到上限
-        num = 0
-        for conv in self.get_conversations(ignore_system):
-            num += len(conv['content'].encode("UTF8"))
-        if num < const.default_token_limit:
-            return "Need not summary", True
+    # 更新摘要（摘要总是及时总结的）
+    def update_summary(self, world_news, is_davinci):
 
         # 组织报文。如果有summary，说明不是第一次调用，直接用summary
         if len(self.summary) > 0:
             prompt = "【世界】\n" + self.summary + '\n\n'
+            prompt += "【世界新闻】\n" + world_news + '\n\n'
         else:
-            prompt = "" + self.world_record_txt + '\n\n'
-        prompt += "【世界新闻】\n" + world_news + '\n\n'
+            prompt = "" + world_news + '\n\n'
         prompt += const.default_summary_template
 
         # 发送请求
@@ -60,15 +53,15 @@ class StoryData:
 
     
     # 利用摘要发起查询
-    def query_with_summary(self, temp, ignore_system, is_davinci) -> str:
+    def query_with_summary(self, temp, ignore_system, is_davinci, is_summary):
 
         # 记录 input to ChatGPT
         temp = self.replace_key_words(temp)
         self.conversation.append({'role': 'system',
                                   'content': temp})
         
-        # 如果接近token上限，改用摘要
-        if len(self.summary) == 0:
+        # 判断摘要是否启用
+        if not is_summary:
             conversations = self.get_conversations(ignore_system)
         else:
             # 组织摘要 【世界】+【对话（如果存在）】+【模板】
@@ -95,7 +88,7 @@ class StoryData:
         return response, True
         
     # 调用世界初始引擎
-    def new_story(self, ignore_system, is_davinci):
+    def new_story(self, ignore_system, is_davinci, is_summary):
 
         # ======================================= 生成初始世界状态 =======================================
         # 记录 input to ChatGPT
@@ -109,31 +102,20 @@ class StoryData:
         self.world_record_txt = response
 
         # 更新摘要
-        old_summary_len = len(self.summary)
-        errmsg, ok = self.update_summary(self.world_record_txt, ignore_system, is_davinci)
+        errmsg, ok = self.update_summary(response, is_davinci)
         if ok == False:
             return errmsg, False
-        if old_summary_len == 0 and len(self.summary) > 0:
-            self.world_record_txt += "\n=========== 由于字数接近上限，将启用【摘要】 ===========\n"
 
         # 记录 ouput from ChatGPT
         self.conversation.append({'role': 'assistant',
                                   'content': self.world_record_txt})
 
         # ======================================= 生成初始对话内容 =======================================
-        # 记录 input to ChatGPT
-        self.conversation.append({'role': 'system',
-                                  'content': self.replace_key_words(self.temp_data.dialog_engine_init_template)})
-
         # 生成初始的NPC向玩家打招呼的内容
-        response, ok = chatbot.query(self.story_id, self.get_conversations(ignore_system), is_davinci, self.query_logs)
+        response, ok = self.query_with_summary(self.temp_data.dialog_engine_init_template, ignore_system, is_davinci, is_summary)
         if ok == False:
             return response, False
         self.dialog_record_txt = response
-
-        # 记录 ouput from ChatGPT
-        self.conversation.append({'role': 'assistant',
-                                  'content': self.dialog_record_txt})
 
         # 新的一轮对话开始
         self.latest_dialog = self.dialog_record_txt
@@ -141,7 +123,7 @@ class StoryData:
 
 
     # 更新对话
-    def update_dialog(self, user_input, ignore_system, is_davinci):
+    def update_dialog(self, user_input, ignore_system, is_davinci, is_summary):
 
         # 记录 input to ChatGPT
         self.conversation.append({'role': 'user',
@@ -152,7 +134,7 @@ class StoryData:
         self.latest_dialog += '\n' + user_input
 
         # 调用对话更新引擎
-        response, ok = self.query_with_summary(self.temp_data.dialog_engine_update_template, ignore_system, is_davinci)
+        response, ok = self.query_with_summary(self.temp_data.dialog_engine_update_template, ignore_system, is_davinci, is_summary)
         if ok == False:
             return response, False
         
@@ -163,11 +145,11 @@ class StoryData:
 
 
     # 更新世界
-    def update_world(self, ignore_system, is_davinci):
+    def update_world(self, ignore_system, is_davinci, is_summary):
 
         # ======================================= 更新世界状态 =======================================
         # 调用世界更新引擎
-        response, ok = self.query_with_summary(self.temp_data.world_engine_update_template, ignore_system, is_davinci)
+        response, ok = self.query_with_summary(self.temp_data.world_engine_update_template, ignore_system, is_davinci, is_summary)
         if ok == False:
             return response, False
 
@@ -175,19 +157,16 @@ class StoryData:
         self.world_record_txt += '\n\n' + response
 
         # 更新摘要
-        old_summary_len = len(self.summary)
-        errmsg, ok = self.update_summary(response, ignore_system, is_davinci)
+        errmsg, ok = self.update_summary(response, is_davinci)
         if ok == False:
             return errmsg, False
-        if old_summary_len == 0 and len(self.summary) > 0:
-            self.world_record_txt += "\n=========== 由于字数接近上限，将启用【摘要】 ===========\n"
 
         # ======================================= 重启多轮对话 =======================================
         # 清除上一轮对话
         self.latest_dialog = ""
 
         # 调用对话更新引擎
-        response, ok = self.query_with_summary(self.temp_data.dialog_engine_update_template, ignore_system, is_davinci)
+        response, ok = self.query_with_summary(self.temp_data.dialog_engine_update_template, ignore_system, is_davinci, is_summary)
         if ok == False:
             return response, False
 

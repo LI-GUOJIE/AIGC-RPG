@@ -102,7 +102,7 @@ class Chatbot:
             print(f"chatbot finish, story_id:{story_id}, response:")
             print("AI接口访问失败，其他错误, errInfo:")
             print(errInfo)
-            return "AI接口访问失败，具体错误原因需要咨询AI提供方", False
+            return "AI接口访问失败，字数太多，或其他原因", False
 
 # 初始化全局变量
 chatbot = Chatbot(api_key=os.environ.get("API_KEY"))
