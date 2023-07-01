@@ -13,7 +13,7 @@ def load_page_player():
 				btn_new_story = gr.Button("创建新故事", variant="primary")
 
 			with gr.Box():
-				gr.Examples(["随机盒子", "随机盒子2.0", "修仙弟子", "绿茶僵尸", "倚天屠龙记", "绿茶僵尸二十二"],
+				gr.Examples(["随机盒子", "修仙弟子", "修仙弟子2.0", "绿茶僵尸", "倚天屠龙记"],
 								inputs=[player_template_name],
 								label="常用模板")
 			with gr.Column():
