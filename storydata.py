@@ -108,7 +108,7 @@ class StoryData:
 
         # 记录 ouput from ChatGPT
         self.conversation.append({'role': 'assistant',
-                                  'content': self.world_record_txt})
+                                  'content': response})
 
         # ======================================= 生成初始对话内容 =======================================
         # 生成初始的NPC向玩家打招呼的内容
@@ -154,7 +154,7 @@ class StoryData:
             return response, False
 
         # 将新的剧情插入到世界记录
-        self.world_record_txt += '\n\n' + response
+        self.world_record_txt += '\n\n============= 来自游戏服的分割线 =============\n\n' + response
 
         # 更新摘要
         errmsg, ok = self.update_summary(response, is_davinci)
@@ -171,7 +171,7 @@ class StoryData:
             return response, False
 
         # 将NPC发言插入到对话记录中
-        self.dialog_record_txt += '\n\n' + response
+        self.dialog_record_txt += '\n\n============= 来自游戏服的分割线 =============\n\n' + response
 
         # 新的一轮对话开始
         self.latest_dialog = response

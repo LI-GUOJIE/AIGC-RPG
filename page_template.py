@@ -23,6 +23,9 @@ def load_page_template():
 
 		with gr.Row():
 			manager_template_name = gr.Textbox(label="模板ID（支持中文）", show_label=True, max_lines=1, lines=1)
+			gr.Examples(["随机盒子", "修仙弟子", "修仙弟子2.0", "绿茶僵尸", "倚天屠龙记"],
+				inputs=[manager_template_name],
+				label="常用模板")
 			btn_create_template = gr.Button("生成模板（若模板ID已存在则报错）", variant="primary")
 			btn_force_create_template = gr.Button("强制更新模板", variant="primary")
 			btn_search_template = gr.Button("查找模板", variant="primary")
